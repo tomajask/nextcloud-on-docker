@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  nginx-proxy:
-    image: jwilder/nginx-proxy:${NGINX_PROXY_TAG}
-    container_name: nginx-proxy
+  nginx:
+    image: nginx:${NGINX_TAG}
+    container_name: nginx
     restart: unless-stopped
     ports:
       - 80:80
@@ -20,19 +20,19 @@ services:
     container_name: nginx-gen
     restart: unless-stopped
     depends_on:
-      - nginx-proxy
+      - nginx
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx/data/templates:/etc/docker-gen/templates:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:rw
-    entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx_proxy -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    entrypoint: /usr/local/bin/docker-gen -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
 
   lets-encrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion:${LETS_ENCRYPT_COMPANION_TAG}
-    container_name: nginx_proxy-lets_encrypt
+    container_name: lets-encrypt-companion
     restart: unless-stopped
     depends_on:
-      - nginx-proxy
+      - nginx
       - nginx-gen
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
